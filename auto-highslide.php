@@ -19,16 +19,38 @@ function addhighslideclass_replace ($content)
 }
 /* Add HighSlide */
 function highslide_head() {
-	print('
-<link rel="stylesheet" href="'.get_bloginfo('wpurl').'/wp-content/plugins/auto-highslide/highslide/highslide.css" type="text/css" />
-<script type="text/javascript" src="'.get_bloginfo('wpurl').'/wp-content/plugins/auto-highslide/highslide/highslide-with-html.packed.js"></script>
-<script type="text/javascript">
-	hs.graphicsDir = "'.get_bloginfo('wpurl').'/wp-content/plugins/auto-highslide/highslide/graphics/";
-	hs.outlineType = "rounded-white";
-	hs.outlineWhileAnimating = true;
-	hs.showCredits = false;
-</script>
-	');
+	if( ! wp_script_is( 'highslide', 'done' ) ) {
+		return;
+	}
+
+	$base = plugins_url( 'highslide/graphics/', __FILE__ );
+
+	echo <<<EOF
+		<script type="text/javascript">
+			hs.graphicsDir = "$base";
+			hs.outlineType = "rounded-white";
+			hs.outlineWhileAnimating = true;
+			hs.showCredits = false;
+		</script>
+EOF;
+
 }
-add_action('wp_head', 'highslide_head');
-?>
+add_action('wp_head', 'highslide_head', 11 );
+
+/**
+ * Add highslide.js file
+ */
+function highslide_scripts() {
+	wp_register_script( 'highslide', plugins_url( 'highslide/highslide-with-html.packed.js', __FILE__ ), null, 1 );
+	wp_enqueue_script( 'highslide' );
+}
+add_action( 'wp_enqueue_scripts', 'highslide_scripts' );
+
+/**
+ * Add highslide css file.
+ */
+function highslide_styles() {
+	wp_register_style( 'highslide', plugins_url( 'highslide/highslide.css', __FILE__ ), null, 1 );
+	wp_enqueue_style( 'highslide' );
+}
+add_action( 'wp_print_styles', 'highslide_styles' );
